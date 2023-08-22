@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
+        Schema::create('employees', function (Blueprint $table) {
             $table->engine = "InnoDB";
             $table->charset = 'utf8mb4';
             $table->collation = 'utf8mb4_unicode_ci';
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
+            
+            $table->id();
+            $table->string('name', 60)->comment('Nome');
+            $table->string('email', 45)->comment('Email');
+            $table->enum('departaments', ['Departamento Pessoal', 'Fiscal', 'Contábil', 'Financeiro']);
+
+            $table->timestamps();
         });
     }
 
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('employees');
     }
 };
