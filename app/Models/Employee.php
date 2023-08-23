@@ -14,7 +14,7 @@ class Employee extends Model
     protected $fillable = [
         'name',
         'email',
-        'departaments',
+        'departament',
     ];
 
     public function companies()
@@ -35,5 +35,15 @@ class Employee extends Model
     public function personalDepartaments()
     {
         return $this->hasMany(PersonalDepartament::class);
+    }
+
+    public static function getDepartmentOptions()
+    {
+        return [
+            'Departamento Pessoal' => 'Departamento Pessoal',
+            'Fiscal' => 'Fiscal',
+            'Contábil' => 'Contábil',
+            'Financeiro' => 'Financeiro',
+        ];
     }
 }
