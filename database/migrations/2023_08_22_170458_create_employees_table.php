@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name', 60)->comment('Nome');
             $table->string('email', 45)->comment('Email');
             $table->enum('departament', ['Departamento Pessoal', 'Fiscal', 'Contábil', 'Financeiro']);
-
+            
             $table->timestamps();
         });
     }

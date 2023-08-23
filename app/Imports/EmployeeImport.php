@@ -2,18 +2,17 @@
 
 namespace App\Imports;
 
-use App\Models\User;
+use App\Models\Employee;
 use Exception;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
-class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithValidation
+class EmployeeImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithValidation
 {
     use Importable;
     /**
@@ -21,7 +20,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
     *
     * @return \Illuminate\Database\Eloquent\Model|null
     */
-    
+
     public $exceptionTransation; // variavel responsavel por retornar exceptions ao efetuar cadastros no banco
 
     public function collection(Collection $rows)
@@ -30,10 +29,10 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
             DB::transaction(function () use ($rows) {
                 foreach ($rows as $row) {
                     if ($this->isValidRow($row)) {
-                        User::create([
+                        Employee::create([
                             'name' => $row['nome'],
                             'email' => $row['email'],
-                            'password' => Hash::make($row['senha']),
+                            'departament' => $row['departamento'],
                         ]);
                     }
                 }
@@ -46,7 +45,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
     }
 
     /**
-     * Validação customizada para verificar se o usuário já existe no banco de dados
+     * Validação customizada para verificar se o funcionário já existe no banco de dados
      */
     public function withValidator($validator)
     {
@@ -54,14 +53,14 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
             
             foreach ($validator->getData() as $key => $data) {
 
-                if (!isset($data['nome']) || !isset($data['email']) || !isset($data['senha'])) {
+                if (!isset($data['nome']) || !isset($data['email']) || !isset($data['departamento'])) {
                     $validator->errors()->add($key,'É obrigatório a nomeação das colunas na planilha!');
 
                 } else {
-                    $user = User::where('name', $data['nome'])->where('email', $data['email'])->exists();
+                    $user = Employee::where('name', $data['nome'])->where('email', $data['email'])->exists();
 
                     if ($user) {
-                        $validator->errors()->add($key, 'O Usuário: ' . $data['nome'] . " " . $data['email'] . ' já está cadastrado!');
+                        $validator->errors()->add($key, 'O Funcionário: ' . $data['nome'] . " " . $data['email'] . ' já está cadastrado!');
                     }
                 }
             }
@@ -80,9 +79,8 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
                 'required',
                 'email',
             ],
-            '*.senha' => [
+            '*.departamento' => [
                 'required',
-                'min:8'
             ],
         ];
     }
@@ -97,8 +95,7 @@ class UsersImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithV
             'nome.required' => 'A coluna Nome na planilha é obrigatória.',
             'email.required' => 'A coluna Email na planilha é obrigatória.',
             'email.email' => 'O coluna Email deve ser um email válido.',
-            'senha.required' => 'A coluna Senha na planilha é obrigatória.',
-            'senha.min' => 'O tamanho minímo da senha deve ser de 8 caracteres.',
+            'departamento.required' => 'A coluna Departamento na planilha é obrigatória.',
         ];
     }
 
