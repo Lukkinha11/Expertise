@@ -17,10 +17,10 @@ return new class extends Migration
             $table->collation = 'utf8mb4_unicode_ci';
             
             $table->id();
-            $table->integer('code')->comment('Código da empresa');
-            $table->integer('branch')->comment('Filial');
             $table->string('company_name', 100)->comment('Nome da empresa');
             $table->string('cnpj', 18)->unique();
+            $table->integer('code')->comment('Código da empresa');
+            $table->integer('branch')->comment('Filial');
 
             $table->timestamps();
         });
