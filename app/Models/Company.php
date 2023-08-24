@@ -18,8 +18,8 @@ class Company extends Model
         'cnpj',
     ];
 
-    public function users()
+    public function employees()
     {
-        return $this->belongsToMany(User::class, 'employees_companies', 'employee_id', 'company_id');
+        return $this->belongsToMany(Employee::class, 'employees_companies', 'employee_id', 'company_id');
     }
 }

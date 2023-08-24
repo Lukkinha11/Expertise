@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Support\Enums\IconPosition;
+use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
 {
@@ -32,14 +33,16 @@ class UserResource extends Resource
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->label('Email')
-                    ->unique()
+                    ->unique(ignoreRecord:true)
                     ->email()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
                     ->label('Senha')
                     ->password()
-                    ->required()
+                    ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
+                    ->dehydrated(fn (?string $state): bool => filled($state))
+                    ->required(fn (string $operation): bool => $operation === 'create')
                     ->maxLength(255),
             ]);
     }

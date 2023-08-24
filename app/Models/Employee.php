@@ -19,7 +19,7 @@ class Employee extends Model
 
     public function companies()
     {
-        return $this->belongsToMany(Parceiro::class, 'employees_companies', 'employee_id', 'company_id');
+        return $this->belongsToMany(Company::class, 'employees_companies', 'employee_id', 'company_id');
     }
 
     public function supervisions()

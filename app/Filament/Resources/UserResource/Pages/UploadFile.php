@@ -23,8 +23,13 @@ class UploadFile
         }
 
         try {
-            $this->importAndDeleteFile($filePath);
+            $result = $this->importAndDeleteFile($filePath);
+
+            if ($result === "Ocorreu um erro ao importar a planilha!") {
+                return $this->sendErrorNotification('Ocorreu um erro ao importar a planilha!');
+            }
             return $this->sendSuccessNotification('Planilha Importada com Sucesso');
+
         } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
             $this->handleValidationErrors($e);
         }
@@ -34,6 +39,11 @@ class UploadFile
     {
         $import = new UsersImport;
         Excel::import($import, $filePath);
+
+        if ($import->exceptionTransation) {
+            $messages = 'Ocorreu um erro ao importar a planilha!';
+            return $messages ;
+        }
 
         // Excluir o arquivo após a importação
         Storage::delete('public/' . self::$uploadedFileName);

@@ -2,74 +2,75 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\EmployeeResource\Pages;
-use App\Filament\Resources\EmployeeResource\Pages\UploadEmployee;
+use App\Filament\Resources\CompanyResource\Pages;
+use App\Filament\Resources\CompanyResource\Pages\UploadCompany;
+use App\Filament\Resources\CompanyResource\RelationManagers;
 use App\Models\Company;
-use App\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\RawJs;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-class EmployeeResource extends Resource
+class CompanyResource extends Resource
 {
-    protected static ?string $model = Employee::class;
+    protected static ?string $model = Company::class;
 
-    protected static ?string $modelLabel = 'Funcionário';
-    protected static ?string $pluralModelLabel = 'Funcionários';
+    protected static ?string $modelLabel = 'Empresa';
+    protected static ?string $pluralModelLabel = 'Empresas';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Nome')
+                Forms\Components\TextInput::make('company_name')
+                   ->label('Nome da Empresa')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->label('Email')
+                    ->maxLength(100),
+                Forms\Components\TextInput::make('cnpj')
+                    ->label('Cnpj')
+                    ->rule('cnpj')
+                    ->mask(RawJs::make(<<<'JS'
+                        '99.999.999/9999-99'
+                    JS))
+                    ->required()
                     ->unique(ignoreRecord:true)
-                    ->email()
+                    ->maxLength(18),
+                Forms\Components\TextInput::make('code')
+                    ->label('Código da Empresa')
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('departament')
-                    ->label('Departamento')
-                    ->options(Employee::getDepartmentOptions())
-                    ->required(),
-                Forms\Components\Select::make('employees_companies')
-                    ->label('Empresas')
-                    ->relationship('companies', 'company_name')
-                    ->options(Company::all()->pluck('company_name', 'id'))
-                    ->multiple()
+                    ->numeric(),
+                Forms\Components\TextInput::make('branch')
+                    ->label('Filial')
+                    ->required()
+                    ->numeric(),
             ]);
     }
-    
+
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nome')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('departament')
-                    ->label('Departamento')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('companies.company_name')
+                Tables\Columns\TextColumn::make('company_name')
                     ->label('Empresa')
-                    ->searchable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('cnpj')
+                    ->label('Cnpj')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('code')
+                    ->label('Código da Empresa')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('branch')
+                    ->label('Filial')
+                    ->numeric()
                     ->sortable(),
             ])
             ->filters([
@@ -95,11 +96,11 @@ class EmployeeResource extends Resource
                         ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
                         ->preserveFilenames()
                         ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
-                            UploadEmployee::$uploadedFileName = $file->getClientOriginalName();
-                            return UploadEmployee::$uploadedFileName;
+                            UploadCompany::$uploadedFileName = $file->getClientOriginalName();
+                            return UploadCompany::$uploadedFileName;
                         })
                 ])
-                ->action(function(UploadEmployee $class){
+                ->action(function(UploadCompany $class){
                     $class->upload();
                 })
             ])
@@ -118,9 +119,9 @@ class EmployeeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListEmployees::route('/'),
-            'create' => Pages\CreateEmployee::route('/create'),
-            'edit' => Pages\EditEmployee::route('/{record}/edit'),
+            'index' => Pages\ListCompanies::route('/'),
+            'create' => Pages\CreateCompany::route('/create'),
+            'edit' => Pages\EditCompany::route('/{record}/edit'),
         ];
     }    
 }
