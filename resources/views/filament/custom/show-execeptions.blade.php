@@ -12,10 +12,10 @@
 <body>
     <div class="container">
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        @if ($messages)
+        @if (session('import_errors'))
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    var messages = @json($messages); // Converter o array PHP em JSON para uso no JavaScript
+                    var messages = {!! json_encode(session('messages')) !!};
                     var errorList = '<ul style="text-align: center; max-height: 400px; overflow-y: auto;"><br>';
                     var uniqueErrors = new Set(); // Conjunto para armazenar erros únicos
                     messages.forEach(function(message) {

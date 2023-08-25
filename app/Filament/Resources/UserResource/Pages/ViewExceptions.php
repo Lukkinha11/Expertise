@@ -16,7 +16,8 @@ class ViewExceptions
 
     public function showException(Request $request)
     {
-        $messages = $request->data;
-        return view('filament.custom.show-execeptions', compact('messages'));
+        // $messages = $request->data;
+        // return view('filament.custom.show-execeptions', compact('messages'));
+        return view('filament.custom.show-execeptions');
     }
 }

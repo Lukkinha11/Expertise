@@ -16,6 +16,22 @@ class Supervasion extends Model
         'date',
     ];
 
+    protected $dates = ['date'];
+
+    /**
+     * Funções estão comentadas para caso seja preciso eu usar no futuro na geração dos graficos
+     */
+
+    // public function setDateAttribute($value) //Função responsável por trocar a / por - para salvar no banco de dados
+    // {
+    //     $this->attributes['date'] = str_replace('/', '-', $value);
+    // }
+
+    // public function getDateAttribute($value) //Função responsável por trocar a - por / para mostrar para o usuário
+    // {
+    //     return $this->attributes['date'] = str_replace('-', '/', $value);
+    // }
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
