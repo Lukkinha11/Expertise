@@ -84,6 +84,7 @@ class UploadSupervasion extends Page
         }
 
         Session::put('import_errors', $data);
+        Session::put('import_errors_expire', now()->addMinutes(1));
 
         Notification::make()
             ->title('Atenção')

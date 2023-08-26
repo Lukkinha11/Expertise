@@ -2,6 +2,8 @@
 
 namespace App\Imports;
 
+use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Supervasion;
 use Exception;
 use Maatwebsite\Excel\Concerns\Importable;
@@ -11,6 +13,8 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+
+use function App\Helpers\format_document;
 
 class SupervasionImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, WithValidation
 {
@@ -25,16 +29,37 @@ class SupervasionImport implements ToCollection, WithHeadingRow, SkipsEmptyRows,
 
     public function collection(Collection $rows)
     {
-        dd($rows);
         try {
             DB::transaction(function () use ($rows) {
                 foreach ($rows as $row) {
                     if ($this->isValidRow($row)) {
-                        Supervasion::create([
-                            'name' => $row['nome'],
-                            'email' => $row['email'],
-                            'departament' => $row['departamento'],
+
+                        $employee = Employee::firstOrCreate([
+                            'name' => $row['resp_fiscal']
+                        ], [
+                            'name' => $row['resp_fiscal'],
+                            'email' => "DEFINIR_EMAIL@TESTE.COM",
+                            'departament' => 'Fiscal',
                         ]);
+
+                        $company = Company::firstOrCreate([
+                            'cnpj' => format_document($row['cnpj'])
+                        ], [
+                            'company_name' => $row['nome_empresa'],
+                            'cnpj' => format_document($row['cnpj']),
+                            'code' => $row['empresa'],
+                            'branch' => $row['filial'],
+                        ]);
+
+                        Supervasion::firstOrCreate([
+                            'employee_id' => $employee->id,
+                            'date' => substr($row['anomes'], 0, 4) . '/' . substr($row['anomes'], 4),
+                        ], [
+                            'employee_id' => $employee->id,
+                            'date' => substr($row['anomes'], 0, 4) . '/' . substr($row['anomes'], 4),
+                        ]);
+
+                        $employee->companies()->syncWithoutDetaching([$company->id]);
                     }
                 }
             });
@@ -54,16 +79,20 @@ class SupervasionImport implements ToCollection, WithHeadingRow, SkipsEmptyRows,
             
             foreach ($validator->getData() as $key => $data) {
 
-                // if (!isset($data['nome']) || !isset($data['email']) || !isset($data['departamento'])) {
-                //     $validator->errors()->add($key,'É obrigatório a nomeação das colunas na planilha!');
+                if (!isset($data['empresa']) || !isset($data['filial']) || !isset($data['nome_empresa']) || !isset($data['cnpj']) || !isset($data['resp_fiscal']) || !isset($data['anomes'])) {
+                    $validator->errors()->add($key,'É obrigatório a nomeação das colunas na planilha!');
 
-                // } else {
-                //     $user = Supervasion::where('name', $data['nome'])->where('email', $data['email'])->exists();
+                } else {
+                    $employee = Employee::where('name', $data['resp_fiscal'])->first();
 
-                //     if ($user) {
-                //         $validator->errors()->add($key, 'O Funcionário: ' . $data['nome'] . " " . $data['email'] . ' já está cadastrado!');
-                //     }
-                // }
+                    if ($employee) {
+                        $supervasion = Supervasion::where('date',substr($data['anomes'], 0, 4) . '/' . substr($data['anomes'], 4))->where('employee_id', $employee->id)->exists();
+
+                        if ($supervasion) {
+                            $validator->errors()->add($key, 'O Resp. Fiscal: ' . $data['resp_fiscal'] .' já está cadastrado!');
+                        }
+                    }
+                }
             }
         });
     }
@@ -86,16 +115,15 @@ class SupervasionImport implements ToCollection, WithHeadingRow, SkipsEmptyRows,
             ],
             '*.cnpj' => [
                 'required',
-                'cnpj'
+                'cpf_ou_cnpj'
             ],
             '*.resp_fiscal' => [
                 'required',
                 'string',
                 'min:3'
             ],
-            '*anomes' => [
+            '*.anomes' => [
                 'required',
-                'string',
                 'min:6',
                 'max:6'
             ],
