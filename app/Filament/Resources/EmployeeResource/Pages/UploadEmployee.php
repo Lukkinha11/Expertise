@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
+use Illuminate\Support\Facades\Session;
 
 class UploadEmployee
 {
@@ -81,6 +82,9 @@ class UploadEmployee
             }
         }
 
+        Session::put('import_errors', $data);
+        Session::put('import_errors_expire', now()->addMinutes(1));
+
         Notification::make()
             ->title('Atenção')
             ->warning()
@@ -89,7 +93,7 @@ class UploadEmployee
                 Action::make('view')
                     ->label('visualizar')
                     ->button()
-                    ->url(route('show.exceptions', ['data' => $data]), shouldOpenInNewTab: true)
+                    ->url(route('show.exceptions'), shouldOpenInNewTab: true)
             ])
             ->send();
     }

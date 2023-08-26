@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/view/execeptions', [ViewExceptions::class, 'showException'])->name('show.exceptions');
+Route::get('view/execeptions', [ViewExceptions::class, 'showException'])->name('show.exceptions');
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });

@@ -67,10 +67,12 @@ class EmployeeResource extends Resource
                     ->label('Departamento')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('companies.company_name')
-                    ->label('Empresa')
-                    ->searchable()
-                    ->sortable(),
+                Tables\Columns\SelectColumn::make('companies')
+                    ->label('Empresas')
+                    ->options(function (Employee $employee): array {
+                        return $employee->companies()->pluck('company_name')->toArray();
+                    })                
+                    ->selectablePlaceholder(false),
             ])
             ->filters([
                 //

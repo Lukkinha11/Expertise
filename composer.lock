@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "98fe5815212ac50ab28579fbe596dbb5",
+    "content-hash": "321a2d8ae9258d7b00b4b10cd9f8a50a",
     "packages": [
         {
             "name": "blade-ui-kit/blade-heroicons",
@@ -3258,16 +3258,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.0.0-beta.11",
+            "version": "v3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "8c3eb912562248d89ca7f5de59de2b2ecdb25f2e"
+                "reference": "b2ba0baa66ddc294ba7b8b105d750dc5124056ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/8c3eb912562248d89ca7f5de59de2b2ecdb25f2e",
-                "reference": "8c3eb912562248d89ca7f5de59de2b2ecdb25f2e",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/b2ba0baa66ddc294ba7b8b105d750dc5124056ba",
+                "reference": "b2ba0baa66ddc294ba7b8b105d750dc5124056ba",
                 "shasum": ""
             },
             "require": {
@@ -3319,7 +3319,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.0.0-beta.11"
+                "source": "https://github.com/livewire/livewire/tree/v3.0.0"
             },
             "funding": [
                 {
@@ -3327,7 +3327,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-08-22T13:33:10+00:00"
+            "time": "2023-08-24T15:33:35+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -8275,6 +8275,50 @@
                 "source": "https://github.com/laravel/sail"
             },
             "time": "2023-08-17T12:49:32+00:00"
+        },
+        {
+            "name": "lucascudo/laravel-pt-br-localization",
+            "version": "v2.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lucascudo/laravel-pt-BR-localization.git",
+                "reference": "ca163788fd1ab18ecedb4f5faa663a85916d753c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lucascudo/laravel-pt-BR-localization/zipball/ca163788fd1ab18ecedb4f5faa663a85916d753c",
+                "reference": "ca163788fd1ab18ecedb4f5faa663a85916d753c",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Lucascudo\\LaravelPtBRLocalization\\LaravelPtBRLocalizationServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Lucascudo\\LaravelPtBRLocalization\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Cascudo",
+                    "email": "lucas.sisau@gmail.com"
+                }
+            ],
+            "description": "Arquivos de linguagem em Português do Brasil (pt_BR) para Laravel",
+            "support": {
+                "issues": "https://github.com/lucascudo/laravel-pt-BR-localization/issues",
+                "source": "https://github.com/lucascudo/laravel-pt-BR-localization/tree/v2.0.2"
+            },
+            "time": "2023-04-10T11:43:36+00:00"
         },
         {
             "name": "mockery/mockery",
