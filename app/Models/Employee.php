@@ -46,4 +46,10 @@ class Employee extends Model
             'Financeiro' => 'Financeiro',
         ];
     }
+
+    // Novo método para acessar o relacionamento de companies como employeeCompanies
+    public function employeeCompanies()
+    {
+        return $this->companies();
+    }
 }

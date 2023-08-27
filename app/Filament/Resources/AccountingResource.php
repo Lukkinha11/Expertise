@@ -2,12 +2,11 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SupervasionResource\Pages;
-use App\Filament\Resources\SupervasionResource\Pages\UploadSupervasion;
-use App\Filament\Resources\SupervasionResource\RelationManagers;
+use App\Filament\Resources\AccountingResource\Pages;
+use App\Filament\Resources\AccountingResource\Pages\UploadAccounting;
+use App\Models\Accounting;
 use App\Models\Company;
 use App\Models\Employee;
-use App\Models\Supervasion;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
@@ -15,16 +14,16 @@ use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-class SupervasionResource extends Resource
-{
-    protected static ?string $model = Supervasion::class;
 
-    protected static ?string $modelLabel = 'Fiscal';
-    protected static ?string $pluralModelLabel = 'Fiscal';
+class AccountingResource extends Resource
+{
+    protected static ?string $model = Accounting::class;
+
+    protected static ?string $modelLabel = 'Contábil';
+    protected static ?string $pluralModelLabel = 'Contábil';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -32,12 +31,18 @@ class SupervasionResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('employee_id')
-                    ->label('Resp. Fiscal')
+                    ->label('Resp. Contábil')
                     ->options(Employee::all()->pluck('name', 'id'))
                     ->searchable()
                     ->required(),
+                Forms\Components\Select::make('employee.employee_id')
+                    ->label('Empresas')
+                    ->relationship('companies','company_name')
+                    ->searchable()
+                    ->options(Company::all()->pluck('company_name', 'id'))
+                    ->multiple(),
                 Forms\Components\TextInput::make('date')
-                    ->label('Data')
+                    ->label('Data(Ano/Mês)' )
                     ->mask('9999/99')
                     ->placeholder('YYYY/MM')
                     ->required()
@@ -48,30 +53,17 @@ class SupervasionResource extends Resource
 
     public static function table(Table $table): Table
     {
-        // $teste = Supervasion::select('employee_id')->with('employee.companies:company_name')->where('employee_id', 647)->first();        
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('employee.name')
-                    ->label('Responsável Fiscal')
+                    ->label('Responsável Contábil')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\SelectColumn::make('employee.companies')
+                Tables\Columns\SelectColumn::make('companies')
                     ->label('Empresas')
-                    ->options(function (Supervasion $supervasion): array {
-
-                        $companies = Supervasion::select('date','companies.company_name', 'supervasion.employee_id')
-                            ->join('employees', 'supervasion.employee_id', '=', 'employees.id')
-                            ->join('employees_companies', 'employees.id', '=', 'employees_companies.employee_id')
-                            ->join('companies', 'companies.id', '=', 'employees_companies.company_id')
-                            ->where('date', $supervasion->date)
-                            ->where('supervasion.employee_id', $supervasion->employee_id)
-                            ->orderBy('companies.company_name', 'asc')
-                            ->get()
-                            ->pluck('company_name')
-                            ->toArray();
-                    
-                        return $companies;
-                    })                               
+                    ->options(function (Accounting $accounting): array {
+                        return $accounting->companies->pluck('company_name')->toArray();
+                    })                
                     ->selectablePlaceholder(false),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Ano/Mês')
@@ -101,11 +93,11 @@ class SupervasionResource extends Resource
                         ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
                         ->preserveFilenames()
                         ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
-                            UploadSupervasion::$uploadedFileName = $file->getClientOriginalName();
-                            return UploadSupervasion::$uploadedFileName;
+                            UploadAccounting::$uploadedFileName = $file->getClientOriginalName();
+                            return UploadAccounting::$uploadedFileName;
                         })
                 ])
-                ->action(function(UploadSupervasion $class){
+                ->action(function(UploadAccounting $class){
                     $class->upload();
                 })
             ])
@@ -113,11 +105,18 @@ class SupervasionResource extends Resource
                 Tables\Actions\CreateAction::make(),
             ]);
     }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
     
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageSupervasions::route('/'),
+            'index' => Pages\ManageAccountings::route('/'),
         ];
     }    
 }
