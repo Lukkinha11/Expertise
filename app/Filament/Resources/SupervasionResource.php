@@ -4,21 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SupervasionResource\Pages;
 use App\Filament\Resources\SupervasionResource\Pages\UploadSupervasion;
-use App\Filament\Resources\SupervasionResource\RelationManagers;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Supervasion;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
-use Filament\Notifications\Notification;
+use Illuminate\Contracts\View\View;
 use Filament\Resources\Resource;
 use Filament\Support\Enums\IconPosition;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Filament\Support\Enums\Alignment;
+use Filament\Actions\StaticAction;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Database\Eloquent\Collection;
 
 class SupervasionResource extends Resource
 {
@@ -38,9 +39,8 @@ class SupervasionResource extends Resource
                     ->searchable()
                     ->required()
                     ->disabledOn('edit'),
-                Forms\Components\Select::make('employee.employee_id')
+                Forms\Components\Select::make('companies.company_id')
                     ->label('Empresas')
-                    ->relationship('companies','company_name')
                     ->searchable()
                     ->options(Company::all()->pluck('company_name', 'id'))
                     ->multiple(),
@@ -62,12 +62,32 @@ class SupervasionResource extends Resource
                     ->label('Responsável Fiscal')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\SelectColumn::make('companies')
+                Tables\Columns\SelectColumn::make('teste')
                     ->label('Empresas')
                     ->options(function (Supervasion $supervasion): array {
-                        return $supervasion->companies->pluck('company_name')->toArray();
-                    })                               
-                    ->selectablePlaceholder(false),
+                        $currentDate = $supervasion->date;
+
+                        // Empresas associadas até a data mais recente
+                        $currentCompanies = $supervasion->companies()
+                        ->wherePivot('date', '<=', $currentDate)
+                        ->get(['company_name', 'cnpj'])
+                        ->pluck('company_name', 'cnpj')
+                        ->toArray();
+
+                        // Empresas associadas somente na data específica
+                        $historicalCompanies = $supervasion->companies()
+                            ->wherePivot('date', $currentDate)
+                            ->get(['company_name', 'cnpj'])
+                            ->pluck('company_name', 'cnpj')
+                            ->toArray();
+
+                        // Combinar as duas listas, mas apenas se houver empresas históricas
+                        $combinedCompanies = $historicalCompanies ? array_merge($historicalCompanies, $currentCompanies) : $currentCompanies;
+        
+                        return $combinedCompanies;
+                    })
+                    ->disableOptionWhen(true)
+                    ->placeholder('Ver empresas do Resp. Fiscal'),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Ano/Mês')
                     ->sortable()
@@ -77,56 +97,47 @@ class SupervasionResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->mutateFormDataUsing(function (array $data, Tables\Actions\EditAction $action): array {
-                        $slashPosition = strpos($data['date'], '/');
-                        $dateParts = explode('/', $data['date']);
-
-                        if ($slashPosition !== 4) {
-                                                    
-                            $formattedDate = $dateParts[1] . '/' . $dateParts[0];
-                            $data['date'] = $formattedDate;
-                        }
-                        $month = $dateParts[1];
-                        $year = $dateParts[0];
-
-                        if ($month < 1 || $month > 12 || $year < 1900 || $year > date('Y')) {
-                            
-                            Notification::make()
-                                ->danger()
-                                ->title('Formato incorreto de Data!')
-                                ->body('A data deve está no formato Ano/mês.')
-                                ->persistent()
-                                ->send();                
-                            $action->halt();
-                        }
-                        return $data;
+                Tables\Actions\DeleteAction::make()
+                    ->before(function (Supervasion $supervasion, Employee $employee) {
+                        self::deleteSupervasionAndManageDepartment($supervasion, $employee);
                     }),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->before(function (Collection $records, Employee $employee) {
+                        self::deleteAllAccountingAndManageDepartment($records, $employee);
+                    }),
                 ]),
             ])
             ->headerActions([
                 Tables\Actions\Action::make('Importar Planilha')
-                ->color('info')
-                ->icon('heroicon-m-arrow-up-tray')
-                ->iconPosition(IconPosition::After)
-                ->form([
-                    FileUpload::make('Arquivo Excel(xlsx/xls)')
-                        ->required()
-                        ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
-                        ->preserveFilenames()
-                        ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
-                            UploadSupervasion::$uploadedFileName = $file->getClientOriginalName();
-                            return UploadSupervasion::$uploadedFileName;
-                        })
-                ])
-                ->action(function(UploadSupervasion $class){
-                    $class->upload();
-                })
+                    ->color('success')
+                    ->icon('heroicon-m-arrow-up-tray')
+                    ->iconPosition(IconPosition::After)
+                    ->form([
+                        FileUpload::make('Arquivo Excel(xlsx/xls)')
+                            ->required()
+                            ->acceptedFileTypes(['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'])
+                            ->preserveFilenames()
+                            ->getUploadedFileNameForStorageUsing(function (TemporaryUploadedFile $file) {
+                                UploadSupervasion::$uploadedFileName = $file->getClientOriginalName();
+                                return UploadSupervasion::$uploadedFileName;
+                            })
+                    ])
+                    ->action(function(UploadSupervasion $class){
+                        $class->upload();
+                    }),
+                Tables\Actions\Action::make('import_instructions')
+                    ->label("Instruções de Importação")
+                    ->color('info')
+                    ->modalContent(fn (): View => view(
+                        'filament.custom.import_instructions',
+                        ['param' => 'Fiscal'],
+                    ))
+                    ->modalAlignment(Alignment::Center)
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(fn (StaticAction $action) => $action->label('Fechar'))
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),
@@ -138,5 +149,38 @@ class SupervasionResource extends Resource
         return [
             'index' => Pages\ManageSupervasions::route('/'),
         ];
-    }    
+    }
+
+    public static function deleteAllAccountingAndManageDepartment(Collection $records, Employee $employee)
+    {
+        $records->each(function ($accounting) use($employee) {
+
+            $employee->find($accounting->employee_id)->companies()->detach();//Remove o vinculo com as empresas
+
+            $result = $employee->find($accounting->employee_id);
+            $result->departament = "Definir Departamento"; //Retira o departamento
+            $result->save();
+
+            $accounting->delete(); 
+        });
+    }
+    
+    public static function deleteSupervasionAndManageDepartment(Supervasion $supervasion, Employee $employee)
+    {
+        $employeeId = $supervasion->employee_id;
+        $date = $supervasion->date;
+
+        // Aqui você remove a entrada na tabela pivot para o funcionário e a data específica
+        $employee->find($employeeId)->companies()
+            ->wherePivot('date', $date)
+            ->detach();
+        
+        $supervasionCount = $supervasion->where('employee_id', $employeeId)->count();
+
+        if ($supervasionCount === 1) {
+            $result = $employee->find($employeeId);
+            $result->departament = "Definir Departamento";
+            $result->save();
+        }
+    }
 }

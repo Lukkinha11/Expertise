@@ -25,7 +25,11 @@
                 <li><strong>Sexta coluna(F): </strong><span style="color: red;">Ano/Mês;</span></li>
             </ul>
         </div><br>
-        <img class="center" src="{{ asset('images/exemplo_planilha_contabil.PNG') }}" alt="">
+        @if ($param === "Contábil")
+            <img class="center" src="{{ asset('images/exemplo_planilha_contabil.PNG') }}" alt="">
+        @elseif($param === "Fiscal")
+            <img class="center" src="{{ asset('images/exemplo_planilha_fiscal.png') }}" alt="">
+        @endif
     </div>
 </body>
 </html>
