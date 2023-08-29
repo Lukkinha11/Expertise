@@ -3,14 +3,21 @@
 namespace App\Filament\Resources\SupervasionResource\Pages;
 
 use App\Filament\Resources\SupervasionResource;
+use App\Models\Employee;
 use App\Models\Supervasion;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ManageRecords;
+use Closure;
 
 class ManageSupervasions extends ManageRecords
 {
     protected static string $resource = SupervasionResource::class;
+
+    protected function getTableRecordUrlUsing(): ?Closure
+    {
+        return null;
+    }
 
     protected function getHeaderActions(): array
     {
@@ -22,7 +29,6 @@ class ManageSupervasions extends ManageRecords
                 $dateParts = explode('/', $data['date']);
 
                 if ($slashPosition !== 4) {
-                                            
                     $formattedDate = $dateParts[1] . '/' . $dateParts[0];
                     $data['date'] = $formattedDate;
                 }
@@ -39,6 +45,12 @@ class ManageSupervasions extends ManageRecords
                 if($accounting) {
                     $this->sendNotification("ATENÇÃO!","O Resp. Fiscal já está cadastrado!");
                 }
+
+                $employee = Employee::find($data['employee_id']);
+
+                $companiesData = array_fill_keys($data['companies']['company_id'], ['date' => $data['date']]);
+
+                $employee->companies()->syncWithoutDetaching($companiesData);
 
                 return $model::create($data);
             }),

@@ -73,6 +73,10 @@ class EmployeeResource extends Resource
                         return $employee->companies()->pluck('company_name')->toArray();
                     })                
                     ->selectablePlaceholder(false),
+                Tables\Columns\TextColumn::make('companies_count')
+                    ->label('Qtd Empresas')
+                    ->counts('companies')
+                    ->sortable(),
             ])
             ->filters([
                 //

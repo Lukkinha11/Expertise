@@ -19,6 +19,7 @@ use Illuminate\Contracts\View\View;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Database\Eloquent\Collection;
 
 class AccountingResource extends Resource
 {
@@ -69,13 +70,15 @@ class AccountingResource extends Resource
                         // Empresas associadas até a data mais recente
                         $currentCompanies = $accounting->companies()
                             ->wherePivot('date', '<=', $currentDate)
-                            ->pluck('company_name')
+                            ->get(['company_name', 'cnpj'])
+                            ->pluck('company_name', 'cnpj')
                             ->toArray();
 
                         // Empresas associadas somente na data específica
                         $historicalCompanies = $accounting->companies()
                             ->wherePivot('date', $currentDate)
-                            ->pluck('company_name')
+                            ->get(['company_name', 'cnpj'])
+                            ->pluck('company_name', 'cnpj')
                             ->toArray();
 
                         // Combinar as duas listas, mas apenas se houver empresas históricas
@@ -83,6 +86,7 @@ class AccountingResource extends Resource
 
                         return $combinedCompanies;
                     })
+                    ->disableOptionWhen(true)
                     ->placeholder('Ver empresas do Resp. Contábil'),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Ano/Mês')
@@ -100,7 +104,10 @@ class AccountingResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                    ->before(function (Collection $records, Employee $employee) {
+                        self::deleteAllAccountingAndManageDepartment($records, $employee);
+                    }),
                 ]),
             ])
             ->headerActions([
@@ -149,6 +156,20 @@ class AccountingResource extends Resource
         return [
             'index' => Pages\ManageAccountings::route('/'),
         ];
+    }
+
+    public static function deleteAllAccountingAndManageDepartment(Collection $records, Employee $employee)
+    {
+        $records->each(function ($accounting) use($employee) {
+
+            $employee->find($accounting->employee_id)->companies()->detach();//Remove o vinculo com as empresas
+
+            $result = $employee->find($accounting->employee_id);
+            $result->departament = "Definir Departamento"; //Retira o departamento
+            $result->save();
+
+            $accounting->delete(); 
+        });
     }
     
     public static function deleteAccountingAndManageDepartment(Accounting $accounting, Employee $employee)
