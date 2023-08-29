@@ -40,7 +40,6 @@ class AccountingResource extends Resource
                     ->disabledOn('edit'),
                 Forms\Components\Select::make('companies.company_id')
                     ->label('Empresas')
-                    // ->relationship('companies','company_name')
                     ->searchable()
                     ->options(Company::all()->pluck('company_name', 'id'))
                     ->multiple(),
@@ -94,31 +93,6 @@ class AccountingResource extends Resource
                 //
             ])
             ->actions([
-                // Tables\Actions\EditAction::make()
-                // ->mutateFormDataUsing(function (array $data, Tables\Actions\EditAction $action): array {
-                //     $slashPosition = strpos($data['date'], '/');
-                //     $dateParts = explode('/', $data['date']);
-
-                //     if ($slashPosition !== 4) {
-                                                
-                //         $formattedDate = $dateParts[1] . '/' . $dateParts[0];
-                //         $data['date'] = $formattedDate;
-                //     }
-                //     $month = $dateParts[1];
-                //     $year = $dateParts[0];
-
-                //     if ($month < 1 || $month > 12 || $year < 1900 || $year > date('Y')) {
-                        
-                //         Notification::make()
-                //             ->danger()
-                //             ->title('Formato incorreto de Data!')
-                //             ->body('A data deve está no formato Ano/mês.')
-                //             ->persistent()
-                //             ->send();                
-                //         $action->halt();
-                //     }
-                //     return $data;
-                // }),
                 Tables\Actions\DeleteAction::make()
                     ->before(function (Accounting $accounting, Employee $employee) {
                         self::deleteAccountingAndManageDepartment($accounting, $employee);
@@ -192,7 +166,7 @@ class AccountingResource extends Resource
 
         if ($accountingCount === 1) {
             $result = $employee->find($employeeId);
-            $result->departament = "Definir Departamento"; // Ou o valor desejado para remover o departamento
+            $result->departament = "Definir Departamento";
             $result->save();
         }
     }
