@@ -59,7 +59,10 @@ class AccountingImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, 
                             'date' => substr($row['anomes'], 0, 4) . '/' . substr($row['anomes'], 4),
                         ]);
 
-                        $employee->companies()->syncWithoutDetaching([$company->id]);
+                        // $employee->companies()->syncWithoutDetaching([$company->id]);
+
+                        $employee->companies()->syncWithoutDetaching([$company->id => ['date' => substr($row['anomes'], 0, 4) . '/' . substr($row['anomes'], 4)]]);
+
                     }
                 }
             });

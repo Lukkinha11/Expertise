@@ -36,4 +36,17 @@ class Supervasion extends Model
     {
         return $this->belongsTo(Employee::class);
     }
+
+    public function companies()
+    {
+        // Acesse o Employee associado a esta entrada de contabilidade
+        $employee = $this->employee;
+
+        // Verifique se o Employee está carregado antes de acessar as empresas
+        if ($employee) {
+            return $employee->companies();
+        }
+
+        return null;
+    }
 }
