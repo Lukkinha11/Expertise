@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->id();
             $table->unsignedBigInteger('employee_id');
-            $table->string('date',8)->comment('Data m-Y');
+            $table->string('date',8)->comment('Data Y/m');
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees')->onUpdate('cascade')->onDelete('cascade');

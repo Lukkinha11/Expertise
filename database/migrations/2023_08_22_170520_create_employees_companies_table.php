@@ -18,6 +18,7 @@ return new class extends Migration
             
             $table->unsignedBigInteger('employee_id');
             $table->unsignedBigInteger('company_id');
+            $table->string('date',8)->nullable()->comment('Data Y/m');
             
             $table->foreign('employee_id')->references('id')->on('employees')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('company_id')->references('id')->on('companies')->onUpdate('cascade')->onDelete('cascade');

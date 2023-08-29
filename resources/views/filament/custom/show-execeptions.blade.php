@@ -17,16 +17,22 @@
                     var messages = {!! json_encode(session('import_errors')) !!};
                     var errorList = '<ul style="text-align: center; max-height: 400px; overflow-y: auto;"><br>';
                     var uniqueErrors = new Set(); // Conjunto para armazenar erros únicos
+                    var uniqueRows = new Set(); // Conjunto para armazenar linhas únicas
                     messages.forEach(function(message) {
+                        console.log(message.row);
                         message.errors.forEach(function(error) {
                             uniqueErrors.add(error); // Adiciona cada erro ao conjunto
                         });
+                        
+                        uniqueRows.add(message.row);
                     });
                                     
                     uniqueErrors.forEach(function(error) {
-                        errorList += '<li class="mb-2">' + error + '</li>'; // Exibe apenas erros únicos
+                        uniqueRows.forEach(function(row) {
+                            errorList += '<li class="mb-2">' + error + ' ' + 'Linha: ' + row + '</li>'; // Exibe apenas erros únicos
+                        });
                     });
-
+                    
                     errorList += '</ul>';
 
                     Swal.fire({
