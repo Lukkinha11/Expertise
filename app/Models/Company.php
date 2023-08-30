@@ -22,4 +22,9 @@ class Company extends Model
     {
         return $this->belongsToMany(Employee::class, 'employees_companies', 'employee_id', 'company_id');
     }
+
+    public function financials()
+    {
+        return $this->hasMany(Financial::class);
+    }
 }
