@@ -127,7 +127,6 @@ class PersonalDepartamentResource extends Resource
                         ['personalDepartament' => $personalDepartament],
                     ))
                     ->modalAlignment(Alignment::Center)
-                    // ->modalWidth('7xl')
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -160,11 +159,12 @@ class PersonalDepartamentResource extends Resource
                     ->color('info')
                     ->modalContent(fn (): View => view(
                         'filament.custom.import_instructions',
-                        ['param' => 'DP'],
+                        ['param' => 'Folha'],
                     ))
                     ->modalAlignment(Alignment::Center)
                     ->modalSubmitAction(false)
                     ->modalCancelAction(fn (StaticAction $action) => $action->label('Fechar'))
+                    ->modalWidth('7xl')
             ])
             ->emptyStateActions([
                 Tables\Actions\CreateAction::make(),

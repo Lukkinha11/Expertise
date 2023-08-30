@@ -23,12 +23,20 @@
                 <li><strong>Quarta coluna(D): </strong><span style="color: red;">CNPJ;</span></li>
                 <li><strong>Quinta coluna(E): </strong><span style="color: red;">Resp. {{ $param }};</span></li>
                 <li><strong>Sexta coluna(F): </strong><span style="color: red;">Ano/Mês;</span></li>
+                @if ($param === "Folha")
+                    <li><strong>Sétima coluna(G): </strong><span style="color: red;">Qtde Funcionários;</span></li>
+                    <li><strong>Oitava coluna(H): </strong><span style="color: red;">Qtde Sócios;</span></li>
+                    <li><strong>Nona coluna(I): </strong><span style="color: red;">Admissões;</span></li>
+                    <li><strong>Décima coluna(J): </strong><span style="color: red;">Demissões;</span></li>
+                @endif
             </ul>
         </div><br>
         @if ($param === "Contábil")
             <img class="center" src="{{ asset('images/exemplo_planilha_contabil.PNG') }}" alt="">
         @elseif($param === "Fiscal")
             <img class="center" src="{{ asset('images/exemplo_planilha_fiscal.png') }}" alt="">
+        @elseif($param === "Folha")
+            <img class="center" src="{{ asset('images/exemplo_planilha_dp.png') }}" alt="">
         @endif
     </div>
 </body>
