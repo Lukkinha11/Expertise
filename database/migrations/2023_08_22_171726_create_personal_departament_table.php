@@ -18,10 +18,9 @@ return new class extends Migration
             
             $table->id();
             $table->unsignedBigInteger('employee_id');
-            $table->integer('number_of_employees')->comment('Quantidade de Funcionários');
-            $table->integer('number_of_partners')->comment('Quantidade de Sócios');
-            $table->integer('admissions')->comment('Quantidade Admissões');
-            $table->integer('layoffs')->comment('Quantidade de demissões');
+            $table->string('date',8)->comment('Data Y/m');
+            $table->integer('total')->nullable()->comment('Total de funcionários, sócios, demissões, e admissões');
+
 
             $table->timestamps();
 

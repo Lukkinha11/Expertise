@@ -27,7 +27,8 @@ class AccountingResource extends Resource
 
     protected static ?string $modelLabel = 'Contábil';
     protected static ?string $pluralModelLabel = 'Contábil';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+    protected static ?string $navigationGroup = 'Departamentos';
 
     public static function form(Form $form): Form
     {
@@ -35,7 +36,7 @@ class AccountingResource extends Resource
             ->schema([
                 Forms\Components\Select::make('employee_id')
                     ->label('Resp. Contábil')
-                    ->options(Employee::all()->pluck('name', 'id'))
+                    ->options(Employee::all()->where('departament','Fiscal')->pluck('name', 'id'))
                     ->searchable()
                     ->required()
                     ->disabledOn('edit'),
@@ -43,7 +44,8 @@ class AccountingResource extends Resource
                     ->label('Empresas')
                     ->searchable()
                     ->options(Company::all()->pluck('company_name', 'id'))
-                    ->multiple(),
+                    ->multiple()
+                    ->required(),
                 Forms\Components\TextInput::make('date')
                     ->label('Data(Ano/Mês)' )
                     ->mask('9999/99')
@@ -87,7 +89,7 @@ class AccountingResource extends Resource
                         return $combinedCompanies;
                     })
                     ->disableOptionWhen(true)
-                    ->placeholder('Ver empresas do Resp. Contábil'),
+                    ->placeholder('Ver empresas'),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Ano/Mês')
                     ->sortable()

@@ -23,7 +23,7 @@ class EmployeeResource extends Resource
 
     protected static ?string $modelLabel = 'Funcionário';
     protected static ?string $pluralModelLabel = 'Funcionários';
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {
@@ -71,8 +71,9 @@ class EmployeeResource extends Resource
                     ->label('Empresas')
                     ->options(function (Employee $employee): array {
                         return $employee->companies()->pluck('company_name')->toArray();
-                    })                
-                    ->selectablePlaceholder(false),
+                    })
+                    ->disableOptionWhen(true)            
+                    ->placeholder('Ver empresas do Funcionário'),
                 Tables\Columns\TextColumn::make('companies_count')
                     ->label('Qtd Empresas')
                     ->counts('companies')
