@@ -42,6 +42,11 @@ class AccountingImport implements ToCollection, WithHeadingRow, SkipsEmptyRows, 
                             'departament' => 'Contábil',
                         ]);
 
+                        if ($employee->departament === "Definir Departamento") {
+                            $employee->departament = "Contábil";
+                            $employee->save();
+                        }
+
                         $company = Company::firstOrCreate([
                             'cnpj' => format_document($row['cnpj'])
                         ], [

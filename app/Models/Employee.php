@@ -22,6 +22,11 @@ class Employee extends Model
         return $this->belongsToMany(Company::class, 'employees_companies', 'employee_id', 'company_id');
     }
 
+    public function personalDepartaments()
+    {
+        return $this->hasMany(PersonalDepartament::class);
+    }
+    
     public function supervisions()
     {
         return $this->hasMany(Supervision::class);
@@ -32,10 +37,6 @@ class Employee extends Model
         return $this->hasMany(Accounting::class);
     }
 
-    public function personalDepartaments()
-    {
-        return $this->hasMany(PersonalDepartament::class);
-    }
 
     public static function getDepartmentOptions()
     {
@@ -45,11 +46,5 @@ class Employee extends Model
             'Contábil' => 'Contábil',
             'Financeiro' => 'Financeiro',
         ];
-    }
-
-    // Novo método para acessar o relacionamento de companies como employeeCompanies
-    public function employeeCompanies()
-    {
-        return $this->companies();
     }
 }

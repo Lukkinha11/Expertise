@@ -28,6 +28,7 @@ class SupervasionResource extends Resource
     protected static ?string $modelLabel = 'Fiscal';
     protected static ?string $pluralModelLabel = 'Fiscal';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationGroup = 'Departamentos';
 
     public static function form(Form $form): Form
     {
@@ -35,7 +36,7 @@ class SupervasionResource extends Resource
             ->schema([
                 Forms\Components\Select::make('employee_id')
                     ->label('Resp. Fiscal')
-                    ->options(Employee::all()->pluck('name', 'id'))
+                    ->options(Employee::all()->where('departament','Contábil')->pluck('name', 'id'))
                     ->searchable()
                     ->required()
                     ->disabledOn('edit'),
@@ -43,7 +44,8 @@ class SupervasionResource extends Resource
                     ->label('Empresas')
                     ->searchable()
                     ->options(Company::all()->pluck('company_name', 'id'))
-                    ->multiple(),
+                    ->multiple()
+                    ->required(),
                 Forms\Components\TextInput::make('date')
                     ->label('Data')
                     ->mask('9999/99')
@@ -87,7 +89,7 @@ class SupervasionResource extends Resource
                         return $combinedCompanies;
                     })
                     ->disableOptionWhen(true)
-                    ->placeholder('Ver empresas do Resp. Fiscal'),
+                    ->placeholder('Ver empresas'),
                 Tables\Columns\TextColumn::make('date')
                     ->label('Ano/Mês')
                     ->sortable()
