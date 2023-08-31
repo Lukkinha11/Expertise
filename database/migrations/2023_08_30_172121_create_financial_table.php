@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('expected_date')->comment('Data prevista');
             $table->enum('description', ['Venda']);
             $table->decimal('original_value',20,2)->comment('Valor original da parcela (R$)');
-            $table->enum('receipt_form', ['Venda'])->comment('Forma de recebimento');
+            $table->string('receipt_form',50)->comment('Forma de recebimento');
             $table->decimal('installment_value',20,2)->comment('Valor recebido da parcela (R$)');
             $table->decimal('interest_realized',20,2)->comment('Juros realizado (R$)');
             $table->decimal('fine_performed',20,2)->comment('Multa realizado (R$)');
